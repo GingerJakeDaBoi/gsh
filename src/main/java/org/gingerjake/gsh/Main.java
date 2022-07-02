@@ -3,15 +3,16 @@ package org.gingerjake.gsh;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.Objects;
 import java.util.Scanner;
 
 public class Main {
-    public static void main(String[] args) throws IOException, InterruptedException {
+    public static void main(String[] args) throws IOException {
         System.out.println("GingerShell, version 0.1 (c) 2022 GingerJake");
-        System.out.println("Type 'help' for list of commands");
+        System.out.println("Type 'help' for more information.");
 
         while (true) {
             System.out.println(" ");
@@ -22,7 +23,6 @@ public class Main {
 
 
             switch (TermOut) {
-                //index files in current directory and print it to the screen
                 case "ls" -> {
                     File fileRoot = new File(System.getProperty("user.dir"));
 
@@ -32,7 +32,7 @@ public class Main {
                     File[] subItems = fileRoot.listFiles();
                     for (File file : Objects.requireNonNull(subItems)) {
                         if (file.isDirectory()) {
-                            DefaultMutableTreeNode newDir = new DefaultMutableTreeNode(file.getName());
+                            DefaultMutableTreeNode newDir = new DefaultMutableTreeNode(file.getName() + "/");
                             root.add(newDir);
                             model.reload();
                         } else {
@@ -40,15 +40,14 @@ public class Main {
                             root.add(newFile);
                         }
                     }
+                    System.out.println(" ");
                     for (int i = 0; i < root.getChildCount(); i++) {
                         System.out.println(root.getChildAt(i).toString());
                     }
 
 
                 }
-
-                //if the user types "cd", change the directory to the one they specify
-                case "cd" -> {
+                case "cd", "cd " -> {
                     System.out.print("Enter the directory you want to change to: ");
                     String newDir = TermIn.nextLine();
 
@@ -79,54 +78,68 @@ public class Main {
                                 System.setProperty("user.dir", System.getProperty("user.home") + "/Videos");
                         default -> {
                             File newFile = new File(newDir);
-                            if (newFile.exists()) {
+                            if (newFile.isDirectory()) {
                                 System.setProperty("user.dir", newDir);
                             } else {
-                                System.out.println("Directory does not exist");
+                                System.out.println(" ");
+                                System.out.println("Not a directory");
                             }
                         }
                     }
 
 
                 }
-                //if the user types "pwd", print the current directory
-                case "pwd" -> System.out.println(System.getProperty("user.dir"));
-
-                //if the user types "exit", exit the application
+                case "pwd" -> {
+                    System.out.println(" ");
+                    System.out.println(System.getProperty("user.dir"));
+                }
                 case "exit" -> System.exit(0);
-
-
-                //if the user types "exec", execute the program they specify
                 case "exec" -> {
                     System.out.print("Enter the program you want to execute: ");
                     String exec = TermIn.nextLine();
-                    Process p = Runtime.getRuntime().exec(exec);
-                    p.waitFor();
 
-                    Scanner execOut = new Scanner(p.getInputStream());
-                    while (execOut.hasNextLine()) {
-                        System.out.println(execOut.nextLine());
+                    try {
+                        Process p = Runtime.getRuntime().exec(exec);
+                        p.waitFor();
+                        System.out.println(" ");
+                        Scanner execOut = new Scanner(p.getInputStream());
+                        while (execOut.hasNextLine()) {
+                            System.out.println(execOut.nextLine());
+                        }
+
+                        Scanner execErr = new Scanner(p.getErrorStream());
+                        while (execErr.hasNextLine()) {
+                            System.out.println(execErr.nextLine());
+                        }
+
+                        p.waitFor();
+                        p.destroy();
+                    } catch (FileNotFoundException e) {
+                        System.out.println(" ");
+                        System.out.println("File not found");
+                    } catch (IOException e) {
+                        System.out.println(" ");
+                        System.out.println("IOException");
+                    } catch (InterruptedException e) {
+                        System.out.println(" ");
+                        System.out.println("InterruptedException");
                     }
-                }
 
-                //if the user types "ping", ping the host they specify
+
+                }
                 case "ping" -> {
                     System.out.print("Enter the host you want to ping: ");
                     String host = TermIn.nextLine();
                     Process p = Runtime.getRuntime().exec("ping -c 6 " + host);
                     System.out.println("Pinging " + host);
-                    p.waitFor();
 
-
-
+                    System.out.println(" ");
                     Scanner pingScanner = new Scanner(p.getInputStream());
                     while (pingScanner.hasNextLine()) {
                         System.out.println(pingScanner.nextLine());
                     }
 
                 }
-
-                //if the user types "help", print a help menu
                 case "help" -> {
                     System.out.println(" ");
                     System.out.println("ls - list the contents of the current directory");
@@ -136,13 +149,83 @@ public class Main {
                     System.out.println("exec - execute a program");
                     System.out.println("ping - ping a host");
                     System.out.println("help - print this help menu");
+                    System.out.println("cat - print the contents of a file");
+                    System.out.println("echo - print a line of text");
+                    System.out.println("touch - create a file");
+                    System.out.println("rm - remove a file or directory");
+                    System.out.println("mkdir - create a directory");
+                    System.out.println("clear - clear the screen");
+                    System.out.println("cls - also clears the screen");
+
                 }
                 case "clear", "cls" -> {
                     for (int i = 0; i < 100; i++) {
                         System.out.println(" ");
                     }
                 }
-                //if the user types anything else, print an error message
+                case "echo" -> {
+                    System.out.print("Enter the text you want to echo: ");
+                    String echo = TermIn.nextLine();
+                    System.out.println(" ");
+                    System.out.println(echo);
+                }
+                case "cat" -> {
+                    System.out.print("Enter the file you want to read: ");
+                    String file = TermIn.nextLine();
+                    File f = new File(System.getProperty("user.dir") + "/" + file);
+                    try {
+                        System.out.println(" ");
+                        Scanner fileScanner = new Scanner(f);
+
+                        while (fileScanner.hasNextLine()) {
+                            System.out.println(fileScanner.nextLine());
+                        }
+                    } catch (FileNotFoundException e) {
+                        System.out.println("File not found or is a directory");
+                    }
+                }
+                case "touch" -> {
+                    System.out.print("Enter the file you want to create: ");
+                    String file = TermIn.nextLine();
+                    File f = new File(System.getProperty("user.dir") + "/" + file);
+
+                    if (f.exists()) {
+                        System.out.println(" ");
+                        System.out.println("File already exists");
+                    } else {
+                        //noinspection ResultOfMethodCallIgnored
+                        f.createNewFile();
+                        System.out.println(" ");
+                        System.out.println("File created");
+                    }
+
+                }
+                case "rm" -> {
+                    System.out.print("Enter the file or directory you want to delete: ");
+                    String file = TermIn.nextLine();
+                    File f = new File(System.getProperty("user.dir") + "/" + file);
+                    if (f.exists()) {
+                        //noinspection ResultOfMethodCallIgnored
+                        f.delete();
+                    } else {
+                        System.out.println(" ");
+                        System.out.println("File or directory does not exist");
+                    }
+                }
+                case "mkdir" -> {
+                    System.out.print("Enter the directory you want to create: ");
+                    String dir = TermIn.nextLine();
+                    File f = new File(System.getProperty("user.dir") + "/" + dir);
+                    if (f.exists()) {
+                        System.out.println(" ");
+                        System.out.println("Directory already exists");
+                    } else {
+                        //noinspection ResultOfMethodCallIgnored
+                        f.mkdir();
+                        System.out.println(" ");
+                        System.out.println("Directory created");
+                    }
+                }
                 default -> {
                     System.out.println(" ");
                     System.out.println("Command not recognized");
