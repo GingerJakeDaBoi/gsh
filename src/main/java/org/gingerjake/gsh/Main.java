@@ -1,6 +1,7 @@
 package org.gingerjake.gsh;
 
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -25,12 +26,22 @@ public class Main {
                 case "ls" -> {
                     File fileRoot = new File(System.getProperty("user.dir"));
 
-                    File[] files = fileRoot.listFiles();
-                    DefaultMutableTreeNode node;
-                    for (File file : Objects.requireNonNull(files)) {
-                        node = new DefaultMutableTreeNode(file.getName());
-                        System.out.println(node);
+                    DefaultMutableTreeNode root = new DefaultMutableTreeNode(fileRoot);
+                    DefaultTreeModel model = new DefaultTreeModel(root);
 
+                    File[] subItems = fileRoot.listFiles();
+                    for (File file : Objects.requireNonNull(subItems)) {
+                        if(file.isDirectory()) {
+                            DefaultMutableTreeNode newDir = new DefaultMutableTreeNode(file.getName());
+                            root.add(newDir);
+                            model.reload();
+                        } else {
+                            DefaultMutableTreeNode newFile = new DefaultMutableTreeNode(file.getName());
+                            root.add(newFile);
+                        }
+                    }
+                    for (int i = 0; i < root.getChildCount(); i++) {
+                        System.out.println(root.getChildAt(i).toString());
                     }
 
 
@@ -41,6 +52,34 @@ public class Main {
                     System.out.print("Enter the directory you want to change to: ");
                     String newDir = TermIn.nextLine();
                     System.setProperty("user.dir", newDir);
+
+                    if (newDir.equals("~")) {
+                        System.setProperty("user.dir", System.getProperty("user.home"));
+                    }
+
+                    if (newDir.equals("")) {
+                        System.setProperty("user.dir", System.getProperty("user.home"));
+                    }
+
+                    if (newDir.equals(".")) {
+                        System.setProperty("user.dir", System.getProperty("user.dir"));
+                    }
+
+                    if (newDir.equals("/")) {
+                        System.setProperty("user.dir", "/");
+                    }
+                    if (newDir.equals("\\")) {
+                        System.setProperty("user.dir", "\\");
+                    }
+                    if (newDir.equals("~/")) {
+                        System.setProperty("user.dir", System.getProperty("user.home"));
+                    }
+                    if (newDir.equals("~\\")) {
+                        System.setProperty("user.dir", System.getProperty("user.home"));
+                    }
+
+
+
                 }
                 //if the user types "pwd", print the current directory
                 case "pwd" -> System.out.println(System.getProperty("user.dir"));
@@ -87,7 +126,6 @@ public class Main {
                 default -> {
                     System.out.println(" ");
                     System.out.println("Command not recognized");
-                    System.out.println(" ");
                 }
             }
         }
