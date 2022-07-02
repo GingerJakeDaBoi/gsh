@@ -4,6 +4,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.Objects;
@@ -125,6 +126,10 @@ public class Main {
                         System.out.println("InterruptedException");
                     }
 
+                    if (exec.equals("")) {
+                        System.out.println(" ");
+                        System.out.println("No program specified");
+                    }
 
                 }
                 case "ping" -> {
@@ -156,6 +161,7 @@ public class Main {
                     System.out.println("mkdir - create a directory");
                     System.out.println("clear - clear the screen");
                     System.out.println("cls - also clears the screen");
+                    System.out.println("edit - edit a file");
 
                 }
                 case "clear", "cls" -> {
@@ -224,6 +230,27 @@ public class Main {
                         f.mkdir();
                         System.out.println(" ");
                         System.out.println("Directory created");
+                    }
+                }
+                case "edit" -> {
+                    System.out.print("Enter the file you want to edit: ");
+                    String file = TermIn.nextLine();
+                    File f = new File(System.getProperty("user.dir") + "/" + file);
+                    if (f.exists()) {
+                        System.out.println(" ");
+                        System.out.print("Enter the text you want to write: ");
+                        String text = TermIn.nextLine();
+                        try {
+                            FileWriter fw = new FileWriter(f);
+                            fw.write(text);
+                            fw.close();
+                        } catch (IOException e) {
+                            System.out.println(" ");
+                            System.out.println("IOException");
+                        }
+                    } else {
+                        System.out.println(" ");
+                        System.out.println("File does not exist");
                     }
                 }
                 default -> {

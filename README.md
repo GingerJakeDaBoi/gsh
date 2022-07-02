@@ -32,3 +32,6 @@ List of commands:
 "rm" - remove a file or directory
 
 "mkdir" - create a directory
+
+"edit" - edit a file
+
