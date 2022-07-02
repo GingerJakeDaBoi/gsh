@@ -51,31 +51,34 @@ public class Main {
                 case "cd" -> {
                     System.out.print("Enter the directory you want to change to: ");
                     String newDir = TermIn.nextLine();
-                    System.setProperty("user.dir", newDir);
 
-                    if (newDir.equals("~")) {
-                        System.setProperty("user.dir", System.getProperty("user.home"));
-                    }
-
-                    if (newDir.equals("")) {
-                        System.setProperty("user.dir", System.getProperty("user.home"));
-                    }
-
-                    if (newDir.equals(".")) {
-                        System.setProperty("user.dir", System.getProperty("user.dir"));
-                    }
-
-                    if (newDir.equals("/")) {
-                        System.setProperty("user.dir", "/");
-                    }
-                    if (newDir.equals("\\")) {
-                        System.setProperty("user.dir", "\\");
-                    }
-                    if (newDir.equals("~/")) {
-                        System.setProperty("user.dir", System.getProperty("user.home"));
-                    }
-                    if (newDir.equals("~\\")) {
-                        System.setProperty("user.dir", System.getProperty("user.home"));
+                    switch(newDir) {
+                        case ".." -> {
+                            String currentDir = System.getProperty("user.dir");
+                            String[] splitDir = currentDir.split("/");
+                            StringBuilder newDirString = new StringBuilder();
+                            for (int i = 0; i < splitDir.length - 1; i++) {
+                                newDirString.append(splitDir[i]).append("/");
+                            }
+                            System.setProperty("user.dir", newDirString.toString());
+                        }
+                        case ".", "", " " -> {
+                        }
+                        case "~", "~/" -> System.setProperty("user.dir", System.getProperty("user.home"));
+                        case "~/Desktop", "~/Desktop/" -> System.setProperty("user.dir", System.getProperty("user.home") + "/Desktop");
+                        case "~/Documents", "~/Documents/" -> System.setProperty("user.dir", System.getProperty("user.home") + "/Documents");
+                        case "~/Downloads", "~/Downloads/" -> System.setProperty("user.dir", System.getProperty("user.home") + "/Downloads");
+                        case "~/Music", "~/Music/" -> System.setProperty("user.dir", System.getProperty("user.home") + "/Music");
+                        case "~/Pictures", "~/Pictures/" -> System.setProperty("user.dir", System.getProperty("user.home") + "/Pictures");
+                        case "~/Videos", "~/Videos/" -> System.setProperty("user.dir", System.getProperty("user.home") + "/Videos");
+                        default -> {
+                            File newFile = new File(newDir);
+                            if(newFile.exists()) {
+                                System.setProperty("user.dir", newDir);
+                            } else {
+                                System.out.println("Directory does not exist");
+                            }
+                        }
                     }
 
 
