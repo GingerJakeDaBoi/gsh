@@ -31,7 +31,7 @@ public class Main {
 
                     File[] subItems = fileRoot.listFiles();
                     for (File file : Objects.requireNonNull(subItems)) {
-                        if(file.isDirectory()) {
+                        if (file.isDirectory()) {
                             DefaultMutableTreeNode newDir = new DefaultMutableTreeNode(file.getName());
                             root.add(newDir);
                             model.reload();
@@ -52,7 +52,7 @@ public class Main {
                     System.out.print("Enter the directory you want to change to: ");
                     String newDir = TermIn.nextLine();
 
-                    switch(newDir) {
+                    switch (newDir) {
                         case ".." -> {
                             String currentDir = System.getProperty("user.dir");
                             String[] splitDir = currentDir.split("/");
@@ -65,22 +65,27 @@ public class Main {
                         case ".", "", " " -> {
                         }
                         case "~", "~/" -> System.setProperty("user.dir", System.getProperty("user.home"));
-                        case "~/Desktop", "~/Desktop/" -> System.setProperty("user.dir", System.getProperty("user.home") + "/Desktop");
-                        case "~/Documents", "~/Documents/" -> System.setProperty("user.dir", System.getProperty("user.home") + "/Documents");
-                        case "~/Downloads", "~/Downloads/" -> System.setProperty("user.dir", System.getProperty("user.home") + "/Downloads");
-                        case "~/Music", "~/Music/" -> System.setProperty("user.dir", System.getProperty("user.home") + "/Music");
-                        case "~/Pictures", "~/Pictures/" -> System.setProperty("user.dir", System.getProperty("user.home") + "/Pictures");
-                        case "~/Videos", "~/Videos/" -> System.setProperty("user.dir", System.getProperty("user.home") + "/Videos");
+                        case "~/Desktop", "~/Desktop/" ->
+                                System.setProperty("user.dir", System.getProperty("user.home") + "/Desktop");
+                        case "~/Documents", "~/Documents/" ->
+                                System.setProperty("user.dir", System.getProperty("user.home") + "/Documents");
+                        case "~/Downloads", "~/Downloads/" ->
+                                System.setProperty("user.dir", System.getProperty("user.home") + "/Downloads");
+                        case "~/Music", "~/Music/" ->
+                                System.setProperty("user.dir", System.getProperty("user.home") + "/Music");
+                        case "~/Pictures", "~/Pictures/" ->
+                                System.setProperty("user.dir", System.getProperty("user.home") + "/Pictures");
+                        case "~/Videos", "~/Videos/" ->
+                                System.setProperty("user.dir", System.getProperty("user.home") + "/Videos");
                         default -> {
                             File newFile = new File(newDir);
-                            if(newFile.exists()) {
+                            if (newFile.exists()) {
                                 System.setProperty("user.dir", newDir);
                             } else {
                                 System.out.println("Directory does not exist");
                             }
                         }
                     }
-
 
 
                 }
@@ -97,6 +102,11 @@ public class Main {
                     String exec = TermIn.nextLine();
                     Process p = Runtime.getRuntime().exec(exec);
                     p.waitFor();
+
+                    Scanner execOut = new Scanner(p.getInputStream());
+                    while (execOut.hasNextLine()) {
+                        System.out.println(execOut.nextLine());
+                    }
                 }
 
                 //if the user types "ping", ping the host they specify
@@ -105,12 +115,12 @@ public class Main {
                     String host = TermIn.nextLine();
                     Process p = Runtime.getRuntime().exec("ping -c 1 " + host);
                     p.waitFor();
-                }
 
-                //if the user types "netstat", print the network status
-                case "netstat" -> {
-                    Process p = Runtime.getRuntime().exec("netstat -an");
-                    p.waitFor();
+                    Scanner pingScanner = new Scanner(p.getInputStream());
+                    while (pingScanner.hasNextLine()) {
+                        System.out.println(pingScanner.nextLine());
+                    }
+
                 }
 
                 //if the user types "help", print a help menu
@@ -122,7 +132,6 @@ public class Main {
                     System.out.println("exit - exit the application");
                     System.out.println("exec - execute a program");
                     System.out.println("ping - ping a host");
-                    System.out.println("netstat - print the network status");
                     System.out.println("help - print this help menu");
                 }
                 //if the user types anything else, print an error message
