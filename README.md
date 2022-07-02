@@ -11,8 +11,6 @@ List of commands:
 
 "pwd" - print working directory
 
-"cat" - concatenate files
-
 "exit" - exit gsh
 
 "exec" - execute a application
