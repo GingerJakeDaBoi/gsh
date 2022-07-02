@@ -113,8 +113,11 @@ public class Main {
                 case "ping" -> {
                     System.out.print("Enter the host you want to ping: ");
                     String host = TermIn.nextLine();
-                    Process p = Runtime.getRuntime().exec("ping -c 1 " + host);
+                    Process p = Runtime.getRuntime().exec("ping -c 6 " + host);
+                    System.out.println("Pinging " + host);
                     p.waitFor();
+
+
 
                     Scanner pingScanner = new Scanner(p.getInputStream());
                     while (pingScanner.hasNextLine()) {
@@ -133,6 +136,11 @@ public class Main {
                     System.out.println("exec - execute a program");
                     System.out.println("ping - ping a host");
                     System.out.println("help - print this help menu");
+                }
+                case "clear", "cls" -> {
+                    for (int i = 0; i < 100; i++) {
+                        System.out.println(" ");
+                    }
                 }
                 //if the user types anything else, print an error message
                 default -> {
